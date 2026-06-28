@@ -107,7 +107,8 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
             <button
               type="button"
               onClick={() => setCustomIndustry(!customIndustry)}
-              style={{ border: 'none', background: 'transparent', color: 'var(--info)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}
+              style={{ border: 'none', background: 'transparent', color: 'var(--primary)', fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', textDecoration: 'none' }}
+              className="text-link"
             >
               {customIndustry ? 'Listeden Seç' : 'Kendin Yaz'}
             </button>
@@ -145,7 +146,8 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
             <button
               type="button"
               onClick={() => setCustomLocation(!customLocation)}
-              style={{ border: 'none', background: 'transparent', color: 'var(--info)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}
+              style={{ border: 'none', background: 'transparent', color: 'var(--primary)', fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', textDecoration: 'none' }}
+              className="text-link"
             >
               {customLocation ? 'Listeden Seç' : 'Kendin Yaz'}
             </button>

@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, Globe, MapPin, Building, EyeOff, X, Copy, Check, Phone, Mail, Map, FileSpreadsheet } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
+import { Star, Globe, MapPin, Building, EyeOff, X, Copy, Check, Phone, Mail, Map, FileSpreadsheet, Bookmark } from 'lucide-react';
 
 export interface Lead {
   id: string;
@@ -23,12 +25,15 @@ interface LeadTableProps {
 }
 
 export default function LeadTable({ leads }: LeadTableProps) {
+  const pathname = usePathname();
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [copiedPitch, setCopiedPitch] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   // Checkbox states
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const isSavedPage = pathname === '/saved';
 
   if (leads.length === 0) {
     return (
@@ -85,6 +90,34 @@ export default function LeadTable({ leads }: LeadTableProps) {
     );
   };
 
+  // Save selected leads to saved list
+  const handleSaveSelected = async () => {
+    if (selectedIds.size === 0) {
+      alert(isSavedPage ? 'Lütfen kayıttan kaldırmak istediğiniz işletmeleri seçin.' : 'Lütfen kaydetmek istediğiniz işletmeleri seçin.');
+      return;
+    }
+    const idsToUpdate = Array.from(selectedIds);
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({ saved: !isSavedPage })
+        .in('id', idsToUpdate);
+
+      if (error) throw error;
+
+      alert(isSavedPage 
+        ? `${idsToUpdate.length} adet işletme başarıyla kaydedilenlerden çıkarıldı!`
+        : `${idsToUpdate.length} adet işletme başarıyla kaydedildi!`
+      );
+      setSelectedIds(new Set());
+      // Refresh window to reload active values
+      window.location.reload();
+    } catch (err: any) {
+      console.error('Error updating leads:', err);
+      alert('İşletmeler güncellenirken bir hata oluştu. Lütfen SQL Editor ile "leads" tablosuna boolean tipinde "saved" sütununu eklediğinizden emin olun.');
+    }
+  };
+
   const handleCopyText = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text);
     if (fieldName === 'pitch') {
@@ -118,15 +151,25 @@ export default function LeadTable({ leads }: LeadTableProps) {
       {/* Selected Items Copy Panel */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
         <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>
-          {selectedIds.size > 0 ? `${selectedIds.size} satır seçildi` : 'Tüm satırlar kopyalanacak'}
+          {selectedIds.size > 0 ? `${selectedIds.size} satır seçildi` : 'Tüm satırlar seçilebilir'}
         </span>
-        <button
-          onClick={handleCopySelected}
-          className="btn btn-secondary"
-          style={{ height: '32px', padding: '0 0.75rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
-        >
-          <FileSpreadsheet size={12} /> {selectedIds.size > 0 ? 'Seçilenleri Excel Kopyala' : 'Tümünü Excel Kopyala'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            onClick={handleCopySelected}
+            className="btn btn-secondary"
+            style={{ height: '32px', padding: '0 0.75rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+          >
+            <FileSpreadsheet size={12} /> {selectedIds.size > 0 ? 'Seçilenleri Excel Kopyala' : 'Tümünü Excel Kopyala'}
+          </button>
+          
+          <button
+            onClick={handleSaveSelected}
+            className="btn btn-primary"
+            style={{ height: '32px', padding: '0 0.75rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+          >
+            <Bookmark size={12} /> {isSavedPage ? 'Seçilenleri Listeden Çıkar' : 'Seçilenleri Kaydet'}
+          </button>
+        </div>
       </div>
 
       {/* Split layout container */}
