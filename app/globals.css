@@ -98,7 +98,7 @@ input[type="checkbox"] {
   cursor: pointer;
   width: 16px;
   height: 16px;
-  border-radius: 4px;
+  border-radius: 50%;
   border: 2px solid var(--border);
   background-color: var(--card-bg);
   position: relative;
@@ -116,13 +116,11 @@ input[type="checkbox"]:checked {
 
 input[type="checkbox"]:checked::after {
   content: '';
-  width: 4px;
-  height: 8px;
-  border: solid #ffffff;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #ffffff;
   display: block;
-  margin-top: -2px;
 }
 
 .card {
